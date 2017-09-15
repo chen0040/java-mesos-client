@@ -83,3 +83,97 @@ String regressionTestCmd = "echo 'Hello Chronos' ; sleep 5";
  Assert.assertTrue(ChronosUtil.jobExists(chronosUrl, regressionTestId));
 }
 ```
+
+To kill a particular job in Chronos:
+
+```java
+String chronosUrl = "http://10.0.0.1:4400";
+String regressionTestId = "regtest";
+if (ChronosUtil.jobExists(chronosUrl, regressionTestId)) {
+ System.out.println(ChronosUtil.killJob(chronosUrl, regressionTestId));
+
+ try {
+    Thread.sleep(5000l);
+ }
+ catch (InterruptedException e) {
+    e.printStackTrace();
+ }
+
+ Assert.assertFalse(ChronosUtil.jobExists(chronosUrl, regressionTestId));
+}
+```
+
+## Marathon
+
+To list jobs in Marathon:
+
+```java
+String marathonUrl = "http://10.0.0.2:8080";
+MarathonJobInfoList result = MarathonUtil.listJobs(marathonUrl);
+
+result.getApps().stream().forEach(job -> {
+ System.out.println("id: " + job.getId());
+ System.out.println("cmd: " + job.getCmd());
+});
+```
+
+To get a particular job in Marathon:
+
+```java
+String marathonUrl = "http://10.0.0.2:8080";
+MarathonJobInfoList result = MarathonUtil.listJobs(marathonUrl);
+
+if (!result.getApps().isEmpty()) {
+ String appId = result.getApps().get(0).getId();
+
+ MarathonJobInfoList jobInfo = MarathonUtil.listJobs(marathonUrl, appId);
+
+ System.out.println(JSON.toJSONString(jobInfo));
+
+ Assert.assertEquals(appId, jobInfo.getApps().get(0).getId());
+}
+```
+
+To start a particular job in Marathon:
+
+```java
+String marathonUrl = "http://10.0.0.2:8080";
+String regressionTestCmd = "while [ true ] ; do echo 'Hello Marathon' ; sleep 5 ; done";
+String regressionTestId = "regtest";
+   
+if (!MarathonUtil.jobExists(marathonUrl, regressionTestId)) {
+ MarathonJobRequest request = new MarathonJobRequest();
+ request.setCmd(regressionTestCmd);
+ request.setId(regressionTestId);
+ System.out.println(MarathonUtil.startJob(marathonUrl, request));
+
+ try {
+    Thread.sleep(5000l);
+ }
+ catch (InterruptedException e) {
+    e.printStackTrace();
+ }
+
+ Assert.assertTrue(MarathonUtil.jobExists(marathonUrl, regressionTestId));
+}
+```
+
+To kill a particular job in Marathon:
+
+```java
+String marathonUrl = "http://10.0.0.2:8080";
+String regressionTestId = "regtest";
+
+if (MarathonUtil.jobExists(marathonUrl, regressionTestId)) {
+ System.out.println(MarathonUtil.killJob(marathonUrl, regressionTestId));
+
+ try {
+    Thread.sleep(5000l);
+ }
+ catch (InterruptedException e) {
+    e.printStackTrace();
+ }
+
+ Assert.assertFalse(MarathonUtil.jobExists(marathonUrl, regressionTestId));
+}
+```
