@@ -1,4 +1,4 @@
-package com.github.chen0040.mesos.client;
+package com.github.chen0040.mesos.client.core;
 
 
 import java.util.HashMap;
